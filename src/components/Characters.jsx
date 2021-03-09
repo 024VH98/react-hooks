@@ -1,7 +1,29 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useReducer } from "react";
+
+const initialState = {
+  favorites: []
+}
+
+const favoriteReducer = (state, action) => {
+  switch (action.type) {
+    case "ADD_TO_FAVORITE": 
+      return {
+        ...state,
+        favorites: [ ...state.favorites, action.payload]
+      };
+    default:
+      return state;
+  }
+}
 
 const Characters = () => {
   const [characters, setCharacters] = useState([]);
+  const [favorites, dispatch] = useReducer(favoriteReducer, initialState);
+
+  const handleClick = favorite => {
+    dispatch({type: "ADD_TO_FAVORITE", payload: favorite})
+  }
+
 
   useEffect(() => {
     fetch("https://rickandmortyapi.com/api/character")
@@ -11,7 +33,15 @@ const Characters = () => {
 
   return (
     <div className="Characters">
-      {characters.map(character => (<h2>{character.name}</h2>))}
+      {favorites.favorites.map(favorite => (
+        <li key={favorite.id}>{favorite.name}</li>
+      ))}
+      {characters.map(character => (
+        <div className="Item" key={character.id}>
+          <h2>{character.name}</h2>
+          <button type="button" onClick={() => handleClick(character)}>Agregar a favoritos</button>
+        </div>
+      ))}
     </div>
   );
 }
